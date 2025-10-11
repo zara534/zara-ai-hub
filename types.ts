@@ -5,7 +5,6 @@ export enum PersonaType {
 
 export enum AIEngine {
   POLLINATIONS = 'POLLINATIONS',
-  GEMINI = 'GEMINI',
 }
 
 export interface AIPersona {
@@ -19,7 +18,6 @@ export interface AIPersona {
   isDefault?: boolean;
   engine?: AIEngine; // For text personas
   model?: string; // For image personas
-  supportsImageUpload?: boolean; // For Gemini text personas
 }
 
 export interface ChatMessage {

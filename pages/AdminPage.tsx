@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAI } from '../contexts/AIContext';
@@ -21,8 +20,6 @@ const AdminPage: React.FC = () => {
         addAnnouncement,
         updateAnnouncement,
         deleteAnnouncement,
-        defaultTextEngine,
-        setDefaultTextEngine,
     } = useAI();
     const navigate = useNavigate();
     
@@ -61,17 +58,13 @@ const AdminPage: React.FC = () => {
     };
 
     const handleNewPersona = () => {
-        setCurrentPersona({ type: PersonaType.TEXT, engine: AIEngine.GEMINI, supportsImageUpload: true });
+        setCurrentPersona({ type: PersonaType.TEXT, engine: AIEngine.POLLINATIONS });
         setPersonaFormVisible(true);
     };
 
     const handlePersonaFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        let finalValue: string | boolean = value;
-        if (type === 'checkbox') {
-            finalValue = (e.target as HTMLInputElement).checked;
-        }
-        setCurrentPersona(prev => ({ ...prev, [name]: finalValue }));
+        const { name, value } = e.target;
+        setCurrentPersona(prev => ({ ...prev, [name]: value }));
     };
     
     const handlePersonaFormSubmit = async (e: FormEvent) => {
@@ -79,11 +72,19 @@ const AdminPage: React.FC = () => {
         if (!currentPersona) return;
 
         try {
-            if (currentPersona.id) {
-                await updatePersona(currentPersona as AIPersona);
+            const personaToSave = { ...currentPersona };
+            if (personaToSave.type === PersonaType.TEXT) {
+                personaToSave.engine = AIEngine.POLLINATIONS;
+            } else {
+                delete personaToSave.engine;
+            }
+
+
+            if (personaToSave.id) {
+                await updatePersona(personaToSave as AIPersona);
                 showToast('Persona updated successfully!');
             } else {
-                await addPersona(currentPersona as Omit<AIPersona, 'id' | 'isDefault' | 'created_at'>);
+                await addPersona(personaToSave as Omit<AIPersona, 'id' | 'isDefault' | 'created_at'>);
                 showToast('Persona added successfully!');
             }
             setPersonaFormVisible(false);
@@ -228,19 +229,7 @@ const AdminPage: React.FC = () => {
                     </select>
                 </div>
                 {currentPersona?.type === PersonaType.TEXT && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="engine" className={labelStyles}>AI Engine</label>
-                            <select name="engine" value={currentPersona?.engine} onChange={handlePersonaFormChange} className={inputStyles}>
-                                <option value={AIEngine.GEMINI}>Gemini</option>
-                                <option value={AIEngine.POLLINATIONS}>Pollinations (Text)</option>
-                            </select>
-                        </div>
-                        <div className="flex items-center pt-6">
-                             <input type="checkbox" id="supportsImageUpload" name="supportsImageUpload" checked={currentPersona?.supportsImageUpload || false} onChange={handlePersonaFormChange} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" disabled={currentPersona.engine !== AIEngine.GEMINI} />
-                             <label htmlFor="supportsImageUpload" className="ml-2 block text-sm text-text-secondary">Supports Image Upload (Gemini only)</label>
-                        </div>
-                    </div>
+                   <p className="text-sm text-text-secondary p-2 bg-surface rounded-md">Text agents currently use the Pollinations AI engine.</p>
                 )}
                 {currentPersona?.type === PersonaType.IMAGE && (
                     <div>
@@ -320,7 +309,6 @@ const AdminPage: React.FC = () => {
             <div className="border-b border-border-color flex justify-center">
                 <button onClick={() => setActiveTab('personas')} className={`px-4 py-2 text-lg font-semibold ${activeTab === 'personas' ? 'text-primary border-b-2 border-primary' : 'text-text-secondary'}`}>Personas</button>
                 <button onClick={() => setActiveTab('announcements')} className={`px-4 py-2 text-lg font-semibold ${activeTab === 'announcements' ? 'text-primary border-b-2 border-primary' : 'text-text-secondary'}`}>Announcements</button>
-                <button onClick={() => setActiveTab('settings')} className={`px-4 py-2 text-lg font-semibold ${activeTab === 'settings' ? 'text-primary border-b-2 border-primary' : 'text-text-secondary'}`}>Settings</button>
             </div>
             
             {activeTab === 'personas' && (
@@ -405,22 +393,6 @@ const AdminPage: React.FC = () => {
                                 ))}
                             </tbody>
                         </table>
-                    </div>
-                </Card>
-            )}
-            
-             {activeTab === 'settings' && (
-                <Card className="p-6">
-                    <h2 className="text-3xl font-bold mb-4">App Settings</h2>
-                    <div className="space-y-4 max-w-md">
-                        <div>
-                            <label htmlFor="defaultTextEngine" className={labelStyles}>Default Text Engine</label>
-                            <select id="defaultTextEngine" value={defaultTextEngine} onChange={e => setDefaultTextEngine(e.target.value as AIEngine)} className={inputStyles}>
-                                <option value={AIEngine.GEMINI}>Gemini</option>
-                                <option value={AIEngine.POLLINATIONS}>Pollinations</option>
-                            </select>
-                            <p className="text-xs text-text-secondary mt-1">This sets the default engine for the "Quick Chat" agent on the home page.</p>
-                        </div>
                     </div>
                 </Card>
             )}

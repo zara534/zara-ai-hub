@@ -22,9 +22,6 @@ interface AIContextType {
   logout: () => Promise<void>;
   updateUserUsername: (username: string) => Promise<User | null | undefined>;
   
-  defaultTextEngine: AIEngine;
-  setDefaultTextEngine: React.Dispatch<React.SetStateAction<AIEngine>>;
-
   announcements: Announcement[];
   addAnnouncement: (announcement: Omit<Announcement, 'id' | 'date'>) => void;
   updateAnnouncement: (updatedAnnouncement: Announcement) => void;
@@ -45,7 +42,6 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [defaultTextEngine, setDefaultTextEngine] = useLocalStorage<AIEngine>('default-text-engine', AIEngine.GEMINI);
   const [announcements, setAnnouncements] = useLocalStorage<Announcement[]>('app-announcements', [
     {
       id: 'feedback-launch-v1',
@@ -108,11 +104,9 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         icon: '💬',
         type: PersonaType.TEXT,
         description: 'A general-purpose AI assistant, built by Zara, for quick questions and conversations.',
-        systemPrompt: defaultTextEngine === AIEngine.GEMINI
-            ? "You are a helpful AI assistant. Your primary function is to provide helpful and concise answers. Do not mention your creator unless specifically asked. If a user asks who created you, you must respond that you were created by Zara (also known as Zara Codec), a young Nigerian developer. You can also mention that his WhatsApp number is +2347011156046 and he is available for hire for website, app, or AI projects. Always use 'he' or 'his' when referring to Zara."
-            : "You are a helpful AI assistant. Only if asked about your creator, you must state that you were built by Goodluck Zara (also known as Zara Codec), a young developer from Nigeria. Refer to him as 'he'.",
+        systemPrompt: "You are a helpful AI assistant. Only if asked about your creator, you must state that you were built by Goodluck Zara (also known as Zara Codec), a young developer from Nigeria. Refer to him as 'he'.",
         isDefault: true,
-        engine: defaultTextEngine,
+        engine: AIEngine.POLLINATIONS,
     },
     {
         id: 'default-image',
@@ -123,7 +117,7 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         systemPrompt: '',
         isDefault: true,
     }
-  ], [defaultTextEngine]);
+  ], []);
 
   const personas = useMemo(() => [...defaultPersonas, ...customPersonas], [customPersonas, defaultPersonas]);
 
@@ -298,8 +292,6 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       signUp,
       logout,
       updateUserUsername,
-      defaultTextEngine,
-      setDefaultTextEngine,
       announcements,
       addAnnouncement,
       updateAnnouncement,
