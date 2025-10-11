@@ -1,14 +1,20 @@
 import React from 'react';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+// Fix: Update ButtonProps to allow an 'as' prop for polymorphic rendering (e.g., as a 'label'),
+// which resolves the type error in AdminPage.tsx. The props interface is made more
+// generic to accommodate attributes for different HTML elements.
+interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
   isLoading?: boolean;
+  as?: React.ElementType;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({ children, className, isLoading, ...props }) => {
+const Button: React.FC<ButtonProps> = ({ children, className, isLoading, as: Component = 'button', ...props }) => {
   return (
-    <button
+    <Component
       className={`inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-background bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-accent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
-      disabled={isLoading}
+      disabled={isLoading || props.disabled}
       {...props}
     >
       {isLoading ? (
@@ -17,7 +23,7 @@ const Button: React.FC<ButtonProps> = ({ children, className, isLoading, ...prop
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
       ) : children}
-    </button>
+    </Component>
   );
 };
 

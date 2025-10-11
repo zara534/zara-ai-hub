@@ -88,6 +88,7 @@ const LoginPage: React.FC = () => {
                                   )}
                                 </button>
                             </div>
+                            <p className="mt-1 text-xs text-text-secondary">Passwords are case-sensitive.</p>
                           </div>
                           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
                           <div>

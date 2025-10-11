@@ -5,6 +5,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../services/supabaseClient';
 import type { Session, User } from '@supabase/supabase-js';
 
+// Define the admin email address in a constant for clarity and easy maintenance.
+const ADMIN_EMAIL = 'admin@zaraaihub.com';
+
 interface AIContextType {
   personas: AIPersona[];
   addPersona: (persona: Omit<AIPersona, 'id' | 'isDefault' | 'created_at'>) => Promise<void>;
@@ -17,7 +20,7 @@ interface AIContextType {
   session: Session | null;
   authLoading: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ user: User; session: Session; }>;
   signUp: (email: string, password: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUserUsername: (username: string) => Promise<User | null | undefined>;
@@ -59,30 +62,18 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
   useEffect(() => {
     setAuthLoading(true);
-    const checkAdmin = () => {
-      const adminAuth = sessionStorage.getItem('isAdminAuthorized') === 'true';
-      setIsAdmin(adminAuth);
-    };
     
-    checkAdmin(); // Check on initial load
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setUser(session?.user ?? null);
-      checkAdmin(); // Check on auth change
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      // Securely check for admin privileges based on the authenticated user's email.
+      setIsAdmin(currentUser?.email === ADMIN_EMAIL);
       setAuthLoading(false);
     });
 
-    const handleStorageChange = (event: StorageEvent) => {
-        if (event.key === 'isAdminAuthorized') {
-            checkAdmin();
-        }
-    };
-    window.addEventListener('storage', handleStorageChange);
-
     return () => {
       subscription.unsubscribe();
-      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
   
@@ -116,6 +107,7 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         description: 'Generate a high-quality image from a simple text description. This tool was built by Zara, a young Nigerian developer.',
         systemPrompt: '',
         isDefault: true,
+        model: 'flux'
     }
   ], []);
 
@@ -144,19 +136,35 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   };
   
   const importPersonas = async (importedPersonas: Omit<AIPersona, 'id' | 'isDefault' | 'created_at'>[]) => {
-    const newPersonas: AIPersona[] = importedPersonas.map(p => ({
-        ...p,
-        id: uuidv4(),
-        isDefault: false,
-        created_at: new Date().toISOString(),
-    }));
+    const newPersonas: AIPersona[] = importedPersonas.map(p => {
+        const newPersona: AIPersona = {
+            ...(p as AIPersona),
+            id: uuidv4(),
+            isDefault: false,
+            created_at: new Date().toISOString(),
+        };
+
+        if (newPersona.type === PersonaType.TEXT) {
+            newPersona.engine = AIEngine.POLLINATIONS;
+            delete newPersona.model;
+        } else if (newPersona.type === PersonaType.IMAGE) {
+            if (!newPersona.model) {
+                newPersona.model = 'flux'; // Default model on import
+            }
+            delete newPersona.engine;
+        }
+
+        return newPersona;
+    });
 
     setCustomPersonas(prev => [...newPersonas, ...prev]);
   };
 
   const login = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    if (!data.user || !data.session) throw new Error('Login failed: No user data returned.');
+    return { user: data.user, session: data.session };
   };
 
   const signUp = async (email: string, password: string, username: string) => {
@@ -174,8 +182,7 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
-    sessionStorage.removeItem('isAdminAuthorized');
-    setIsAdmin(false);
+    // No longer need to manage admin status in sessionStorage as it's derived from the user object.
     if (error) throw error;
   };
 

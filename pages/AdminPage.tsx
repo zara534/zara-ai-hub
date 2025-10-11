@@ -1,5 +1,4 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAI } from '../contexts/AIContext';
 import { AIPersona, PersonaType, AIEngine, Announcement } from '../types';
 import Card from '../ui/Card';
@@ -21,7 +20,6 @@ const AdminPage: React.FC = () => {
         updateAnnouncement,
         deleteAnnouncement,
     } = useAI();
-    const navigate = useNavigate();
     
     const [activeTab, setActiveTab] = useState('personas');
     
@@ -38,12 +36,6 @@ const AdminPage: React.FC = () => {
     const [itemToDelete, setItemToDelete] = useState<{ id: string; type: 'persona' | 'announcement' } | null>(null);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [importError, setImportError] = useState('');
-
-    useEffect(() => {
-        if (!isAdmin) {
-            navigate('/admin-login');
-        }
-    }, [isAdmin, navigate]);
 
     const showToast = (message: string, type: 'success' | 'error' = 'success') => {
         setToast({ message, type });
@@ -72,11 +64,15 @@ const AdminPage: React.FC = () => {
         if (!currentPersona) return;
 
         try {
-            const personaToSave = { ...currentPersona };
+            const personaToSave: Partial<AIPersona> = { ...currentPersona };
             if (personaToSave.type === PersonaType.TEXT) {
                 personaToSave.engine = AIEngine.POLLINATIONS;
-            } else {
+                delete personaToSave.model;
+            } else if (personaToSave.type === PersonaType.IMAGE) {
                 delete personaToSave.engine;
+                if (!personaToSave.model) {
+                  personaToSave.model = 'flux';
+                }
             }
 
 
@@ -193,7 +189,8 @@ const AdminPage: React.FC = () => {
     };
 
     if (!isAdmin) {
-        return <div className="text-center p-8">Checking admin privileges...</div>;
+        // This should not be reached if AdminProtectedRoute is working correctly, but serves as a fallback.
+        return null;
     }
 
     const inputStyles = "block w-full px-3 py-2 bg-background border border-border-color rounded-md focus:outline-none focus:ring-primary text-text-primary";
@@ -233,8 +230,15 @@ const AdminPage: React.FC = () => {
                 )}
                 {currentPersona?.type === PersonaType.IMAGE && (
                     <div>
-                        <label htmlFor="model" className={labelStyles}>Image Model (e.g., 'flux', 'dpo')</label>
-                        <input type="text" name="model" value={currentPersona?.model || ''} onChange={handlePersonaFormChange} className={inputStyles} placeholder="Default: flux" />
+                        <label htmlFor="model" className={labelStyles}>Image Model</label>
+                        <select name="model" value={currentPersona?.model || 'flux'} onChange={handlePersonaFormChange} className={inputStyles}>
+                            <option value="flux">FLUX (Default)</option>
+                            <option value="sdxl">Stable Diffusion XL</option>
+                            <option value="dall-e-3">DALL-E 3</option>
+                            <option value="playground-v2.5">Playground v2.5</option>
+                            <option value="dpo">DPO</option>
+                        </select>
+                        <p className="text-sm text-text-secondary mt-1">Select the generation model. FLUX is recommended for high quality results.</p>
                     </div>
                 )}
                 <div className="flex justify-end gap-4 pt-4">
