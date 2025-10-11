@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZARA AI HUB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&family=Roboto+Slab:wght@400;500;700&family=Fira+Code:wght@400;500&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700&family=Lato:wght@400;700&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.3",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^0.15.0",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.58.0"
+  }
+}
+</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['var(--font-family)', 'Inter', 'sans-serif'],
+            },
+            colors: {
+              'background': 'hsl(var(--background) / <alpha-value>)',
+              'surface': 'hsl(var(--surface) / <alpha-value>)',
+              'primary': 'rgb(var(--color-primary) / <alpha-value>)',
+              'secondary': 'rgb(var(--color-secondary) / <alpha-value>)',
+              'accent': 'rgb(var(--color-accent) / <alpha-value>)',
+              'text-primary': 'hsl(var(--text-primary) / <alpha-value>)',
+              'text-secondary': 'hsl(var(--text-secondary) / <alpha-value>)',
+              'border-color': 'hsl(var(--border-color) / <alpha-value>)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      *, *::before, *::after {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+      }
+      :root {
+        --color-primary: 20 184 166; /* teal-500 */
+        --color-secondary: 13 148 136; /* teal-600 */
+        --color-accent: 45 212 191; /* teal-400 */
+        --font-family: 'Inter';
+
+        /* Light Theme Colors */
+        --background: 0 0% 96%;
+        --surface: 0 0% 100%;
+        --text-primary: 0 0% 9%;
+        --text-secondary: 0 0% 32%;
+        --border-color: 0 0% 90%;
+      }
+      .dark {
+        /* Dark Theme Colors */
+        --background: 0 0% 7%;
+        --surface: 0 0% 11%;
+        --text-primary: 0 0% 96%;
+        --text-secondary: 0 0% 64%;
+        --border-color: 0 0% 25%;
+      }
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--text-primary));
+        font-family: theme('fontFamily.sans');
+      }
+      html {
+        --webkit-font-smoothing: antialiased;
+        --moz-osx-font-smoothing: grayscale;
+      }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "name": "ZARA AI HUB",
+  "description": "An application to create, manage, and interact with various AI text and image generation personas, featuring a secure, role-based admin panel, user authentication, and persistent cloud storage powered by Supabase.",
+  "requestFramePermissions": []
+}
