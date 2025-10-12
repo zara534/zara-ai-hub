@@ -38,9 +38,6 @@ const HomePage: React.FC = () => {
   
   const defaultPersonas = filteredPersonas.filter(p => p.isDefault);
   const customPersonas = filteredPersonas.filter(p => !p.isDefault);
-
-  const textPersonas = customPersonas.filter(p => p.type === PersonaType.TEXT);
-  const imagePersonas = customPersonas.filter(p => p.type === PersonaType.IMAGE);
   
   const VerifiedBadge: React.FC = () => (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-blue-400" aria-label="Verified">
@@ -50,14 +47,14 @@ const HomePage: React.FC = () => {
 
 
   const PersonaCard: React.FC<{ persona: AIPersona }> = ({ persona }) => {
-    const linkTo = persona.type === PersonaType.TEXT ? `/chat/${persona.id}` : `/image/${persona.id}`;
+    const linkTo = `/image/${persona.id}`;
     
     return (
       <Link to={linkTo} className="block h-full">
         <Card className="h-full">
           <div className="p-6 flex flex-col items-start h-full">
             <div className="flex items-center gap-4 mb-4">
-                <div className="text-4xl">{persona.icon || (persona.type === PersonaType.TEXT ? '💬' : '🎨')}</div>
+                <div className="text-4xl">{persona.icon || '🎨'}</div>
                 <h3 className="text-xl font-bold text-text-primary">{persona.name}</h3>
             </div>
             <p className="text-text-secondary flex-grow">{persona.description}</p>
@@ -108,7 +105,7 @@ const HomePage: React.FC = () => {
               <VerifiedBadge />
           </div>
           <p className="mt-4 text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
-            Welcome, <span className="font-bold text-text-primary">{user?.user_metadata?.username || user?.email}</span>! Here you can chat with helpful AI assistants and bring your ideas to life with our powerful image generator.
+            Welcome, <span className="font-bold text-text-primary">{user?.user_metadata?.username || user?.email}</span>! Here you can bring your ideas to life with our powerful image generator.
             <button 
               onClick={() => setIsEditingUsername(true)} 
               className="ml-2 p-1 rounded-full hover:bg-surface/80 text-text-secondary hover:text-primary transition-colors"
@@ -159,21 +156,10 @@ const HomePage: React.FC = () => {
         )}
 
         <div>
-          <h2 className="text-3xl font-bold mb-6 border-l-4 border-primary pl-4 text-text-primary">Custom Chat Agents</h2>
-          {textPersonas.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {textPersonas.map(p => <PersonaCard key={p.id} persona={p} />)}
-            </div>
-          ) : (
-            <p className="text-text-secondary">{searchQuery ? 'No chat agents match your search.' : 'No custom chat agents available. Visit the admin panel to create one.'}</p>
-          )}
-        </div>
-
-        <div>
           <h2 className="text-3xl font-bold mb-6 border-l-4 border-primary pl-4 text-text-primary">Custom Image Generators</h2>
-          {imagePersonas.length > 0 ? (
+          {customPersonas.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {imagePersonas.map(p => <PersonaCard key={p.id} persona={p} />)}
+              {customPersonas.map(p => <PersonaCard key={p.id} persona={p} />)}
             </div>
           ) : (
             <p className="text-text-secondary">{searchQuery ? 'No image generators match your search.' : 'No custom image generators available. Visit the admin panel to create one.'}</p>

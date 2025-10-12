@@ -1,2 +1,2 @@
-// This service is no longer in use and can be safely deleted.
-// The Gemini chat functionality was consolidated into ChatPage.tsx.
+// This service is obsolete and no longer in use.
+// All text generation features have been removed from the application.

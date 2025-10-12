@@ -15,6 +15,10 @@ export const themes = {
   indigo: { name: 'Indigo', primary: '99 102 241', secondary: '79 70 229', accent: '129 140 248' },
   cyan: { name: 'Cyan', primary: '6 182 212', secondary: '8 145 178', accent: '34 211 238' },
   lime: { name: 'Lime', primary: '132 204 22', secondary: '101 163 13', accent: '163 230 53' },
+  gray: { name: 'Gray', primary: '107 114 128', secondary: '75 85 99', accent: '156 163 175' },
+  rose: { name: 'Rose', primary: '244 63 94', secondary: '225 29 72', accent: '251 113 133' },
+  amber: { name: 'Amber', primary: '245 158 11', secondary: '217 119 6', accent: '252 199 44' },
+  violet: { name: 'Violet', primary: '139 92 246', secondary: '124 58 237', accent: '167 139 250' },
 };
 export type ThemeColor = keyof typeof themes;
 
@@ -28,6 +32,10 @@ export const fonts = {
   sourceCodePro: { name: 'Source Code Pro', family: '"Source Code Pro"' },
   lato: { name: 'Lato', family: 'Lato' },
   openSans: { name: 'Open Sans', family: '"Open Sans"' },
+  playfairDisplay: { name: 'Playfair Display', family: '"Playfair Display"' },
+  merriweather: { name: 'Merriweather', family: 'Merriweather' },
+  ubuntu: { name: 'Ubuntu', family: 'Ubuntu' },
+  raleway: { name: 'Raleway', family: 'Raleway' },
 };
 export type FontFamily = keyof typeof fonts;
 

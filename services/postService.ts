@@ -1,2 +1,2 @@
-// This service is no longer in use and can be safely deleted.
-// Announcements are managed directly within AIContext.
+// This service is obsolete and no longer in use.
+// All announcement logic is now handled within AIContext.

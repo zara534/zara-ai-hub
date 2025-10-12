@@ -1,11 +1,14 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent, useMemo } from 'react';
 import { useAI } from '../contexts/AIContext';
-import { AIPersona, PersonaType, AIEngine, Announcement } from '../types';
+import { AIPersona, PersonaType, Announcement } from '../types';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import Toast from '../ui/Toast';
 import { fonts } from '../contexts/ThemeContext';
+
+type SortableAnnouncementKeys = 'title' | 'enabled' | 'date';
+type SortDirection = 'asc' | 'desc';
 
 const AdminPage: React.FC = () => {
     const { 
@@ -30,12 +33,51 @@ const AdminPage: React.FC = () => {
     // Announcement state
     const [isAnnouncementFormVisible, setAnnouncementFormVisible] = useState(false);
     const [currentAnnouncement, setCurrentAnnouncement] = useState<Partial<Announcement> | null>(null);
+    const [sortConfig, setSortConfig] = useState<{ key: SortableAnnouncementKeys, direction: SortDirection }>({ key: 'date', direction: 'desc' });
 
     // General state
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<{ id: string; type: 'persona' | 'announcement' } | null>(null);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [importError, setImportError] = useState('');
+
+    const sortedAnnouncements = useMemo(() => {
+        let sortableItems = [...announcements];
+        if (sortConfig !== null) {
+            sortableItems.sort((a, b) => {
+                const aValue = a[sortConfig.key];
+                const bValue = b[sortConfig.key];
+
+                if (aValue === undefined || bValue === undefined) return 0;
+
+                let comparison = 0;
+                if (sortConfig.key === 'date') {
+                    comparison = new Date(aValue).getTime() - new Date(bValue).getTime();
+                } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    comparison = aValue.localeCompare(bValue);
+                } else if (typeof aValue === 'boolean' && typeof bValue === 'boolean') {
+                    comparison = aValue === bValue ? 0 : aValue ? -1 : 1;
+                }
+
+                return sortConfig.direction === 'asc' ? comparison : -comparison;
+            });
+        }
+        return sortableItems;
+    }, [announcements, sortConfig]);
+
+    const requestSort = (key: SortableAnnouncementKeys) => {
+        let direction: SortDirection = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const getSortIndicator = (key: SortableAnnouncementKeys) => {
+        if (sortConfig.key !== key) return null;
+        return sortConfig.direction === 'asc' ? ' ▲' : ' ▼';
+    };
+
 
     const showToast = (message: string, type: 'success' | 'error' = 'success') => {
         setToast({ message, type });
@@ -50,7 +92,7 @@ const AdminPage: React.FC = () => {
     };
 
     const handleNewPersona = () => {
-        setCurrentPersona({ type: PersonaType.TEXT, engine: AIEngine.POLLINATIONS });
+        setCurrentPersona({ type: PersonaType.IMAGE, model: 'flux' });
         setPersonaFormVisible(true);
     };
 
@@ -64,17 +106,11 @@ const AdminPage: React.FC = () => {
         if (!currentPersona) return;
 
         try {
-            const personaToSave: Partial<AIPersona> = { ...currentPersona };
-            if (personaToSave.type === PersonaType.TEXT) {
-                personaToSave.engine = AIEngine.POLLINATIONS;
-                delete personaToSave.model;
-            } else if (personaToSave.type === PersonaType.IMAGE) {
-                delete personaToSave.engine;
-                if (!personaToSave.model) {
-                  personaToSave.model = 'flux';
-                }
+            const personaToSave: Partial<AIPersona> = { ...currentPersona, type: PersonaType.IMAGE };
+            
+            if (!personaToSave.model) {
+              personaToSave.model = 'flux';
             }
-
 
             if (personaToSave.id) {
                 await updatePersona(personaToSave as AIPersona);
@@ -188,17 +224,14 @@ const AdminPage: React.FC = () => {
         reader.readAsText(file);
     };
 
-    if (!isAdmin) {
-        // This should not be reached if AdminProtectedRoute is working correctly, but serves as a fallback.
-        return null;
-    }
-
     const inputStyles = "block w-full px-3 py-2 bg-background border border-border-color rounded-md focus:outline-none focus:ring-primary text-text-primary";
     const labelStyles = "block text-sm font-medium text-text-secondary mb-1";
+    const thStyles = "p-3 cursor-pointer select-none hover:bg-border-color/20";
+
 
     const renderPersonaForm = () => (
         <Card className="mb-8 p-6">
-            <h3 className="text-2xl font-bold mb-4">{currentPersona?.id ? 'Edit Persona' : 'Create New Persona'}</h3>
+            <h3 className="text-2xl font-bold mb-4">{currentPersona?.id ? 'Edit Image Persona' : 'Create New Image Persona'}</h3>
             <form onSubmit={handlePersonaFormSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -216,31 +249,25 @@ const AdminPage: React.FC = () => {
                 </div>
                 <div>
                     <label htmlFor="systemPrompt" className={labelStyles}>System Prompt / Instructions</label>
-                    <textarea name="systemPrompt" value={currentPersona?.systemPrompt || ''} onChange={handlePersonaFormChange} className={inputStyles} rows={6} />
+                    <textarea name="systemPrompt" value={currentPersona?.systemPrompt || ''} onChange={handlePersonaFormChange} className={inputStyles} rows={4} />
+                     <p className="text-sm text-text-secondary mt-1">These instructions are added to the user's prompt to guide the image generation (e.g., "ultra realistic, 4k").</p>
                 </div>
                 <div>
-                    <label htmlFor="type" className={labelStyles}>Persona Type</label>
-                    <select name="type" value={currentPersona?.type} onChange={handlePersonaFormChange} className={inputStyles}>
-                        <option value={PersonaType.TEXT}>Text Agent</option>
-                        <option value={PersonaType.IMAGE}>Image Generator</option>
-                    </select>
+                    <label htmlFor="examplePrompt" className={labelStyles}>Example Prompt</label>
+                    <textarea name="examplePrompt" value={currentPersona?.examplePrompt || ''} onChange={handlePersonaFormChange} className={inputStyles} rows={3} />
+                    <p className="text-sm text-text-secondary mt-1">Provide a sample prompt to guide users. They will see this as an example and can click a "Try it" button to use it.</p>
                 </div>
-                {currentPersona?.type === PersonaType.TEXT && (
-                   <p className="text-sm text-text-secondary p-2 bg-surface rounded-md">Text agents currently use the Pollinations AI engine.</p>
-                )}
-                {currentPersona?.type === PersonaType.IMAGE && (
-                    <div>
-                        <label htmlFor="model" className={labelStyles}>Image Model</label>
-                        <select name="model" value={currentPersona?.model || 'flux'} onChange={handlePersonaFormChange} className={inputStyles}>
-                            <option value="flux">FLUX (Default)</option>
-                            <option value="sdxl">Stable Diffusion XL</option>
-                            <option value="dall-e-3">DALL-E 3</option>
-                            <option value="playground-v2.5">Playground v2.5</option>
-                            <option value="dpo">DPO</option>
-                        </select>
-                        <p className="text-sm text-text-secondary mt-1">Select the generation model. FLUX is recommended for high quality results.</p>
-                    </div>
-                )}
+                <div>
+                    <label htmlFor="model" className={labelStyles}>Image Model</label>
+                    <select name="model" value={currentPersona?.model || 'flux'} onChange={handlePersonaFormChange} className={inputStyles}>
+                        <option value="flux">FLUX (Default)</option>
+                        <option value="sdxl">Stable Diffusion XL</option>
+                        <option value="dall-e-3">DALL-E 3</option>
+                        <option value="playground-v2.5">Playground v2.5</option>
+                        <option value="dpo">DPO</option>
+                    </select>
+                    <p className="text-sm text-text-secondary mt-1">Select the generation model. FLUX is recommended for high quality results.</p>
+                </div>
                 <div className="flex justify-end gap-4 pt-4">
                     <Button type="button" onClick={() => { setPersonaFormVisible(false); setCurrentPersona(null); }} className="!bg-surface hover:!bg-border-color/50 !text-text-primary">Cancel</Button>
                     <Button type="submit">Save Persona</Button>
@@ -282,7 +309,7 @@ const AdminPage: React.FC = () => {
                     </div>
                      <div>
                         <label htmlFor="actionLink" className={labelStyles}>Action Button Link (Optional)</label>
-                        <input type="text" name="actionLink" value={currentAnnouncement?.actionLink || ''} onChange={handleAnnouncementFormChange} className={inputStyles} placeholder="/chat/default-chat" />
+                        <input type="text" name="actionLink" value={currentAnnouncement?.actionLink || ''} onChange={handleAnnouncementFormChange} className={inputStyles} placeholder="/image/default-image" />
                     </div>
                 </div>
                 <div className="flex justify-end gap-4 pt-4">
@@ -375,14 +402,14 @@ const AdminPage: React.FC = () => {
                         <table className="w-full text-left">
                              <thead className="bg-surface">
                                 <tr>
-                                    <th className="p-3">Title</th>
-                                    <th className="p-3">Status</th>
-                                    <th className="p-3">Date</th>
+                                    <th onClick={() => requestSort('title')} className={thStyles}>Title{getSortIndicator('title')}</th>
+                                    <th onClick={() => requestSort('enabled')} className={thStyles}>Status{getSortIndicator('enabled')}</th>
+                                    <th onClick={() => requestSort('date')} className={thStyles}>Date{getSortIndicator('date')}</th>
                                     <th className="p-3">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {announcements.map(a => (
+                                {sortedAnnouncements.map(a => (
                                     <tr key={a.id} className="border-b border-border-color">
                                         <td className="p-3 font-semibold">{a.title}</td>
                                         <td className="p-3">{a.enabled ? <span className="text-green-400">Enabled</span> : <span className="text-gray-500">Disabled</span>}</td>

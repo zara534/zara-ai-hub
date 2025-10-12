@@ -1,10 +1,5 @@
 export enum PersonaType {
-  TEXT = 'TEXT',
   IMAGE = 'IMAGE',
-}
-
-export enum AIEngine {
-  POLLINATIONS = 'POLLINATIONS',
 }
 
 export interface AIPersona {
@@ -15,19 +10,9 @@ export interface AIPersona {
   type: PersonaType;
   description: string;
   systemPrompt: string; // The behavior description
+  examplePrompt?: string; // Add example prompt for user guidance
   isDefault?: boolean;
-  engine?: AIEngine; // For text personas
   model?: string; // For image personas
-}
-
-export interface ChatMessage {
-  id?: string;
-  created_at?: string;
-  sender: 'user' | 'ai';
-  text: string;
-  persona_id?: string;
-  user_id?: string;
-  imageUrl?: string; // For displaying user-uploaded images in chat
 }
 
 export interface Comment {

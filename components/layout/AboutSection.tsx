@@ -20,27 +20,20 @@ const AboutSection: React.FC = () => {
     ];
 
     return (
-        <div className="bg-surface/50 p-6 rounded-2xl border border-border-color space-y-6 max-h-[85vh] overflow-y-auto hidden lg:block">
+        <div className="bg-surface/50 p-6 sm:p-8 rounded-2xl border border-border-color space-y-8">
             <div className="text-center">
-                 <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">ZARA AI HUB</h1>
-                 <div className="mt-2 text-text-secondary max-w-lg mx-auto space-y-2 text-sm">
+                 <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">ZARA AI HUB</h1>
+                 <div className="mt-4 text-text-secondary max-w-2xl mx-auto space-y-2 text-sm sm:text-base">
                     <p>Your personal creative suite, powered by the custom-tuned ZARA AI engine.</p>
-                    <p>ZARA AI HUB leverages multiple advanced AI models, including Google's Gemini for nuanced text generation and Pollinations for diverse image creation, to provide a comprehensive and intuitive creative partner.</p>
+                    <p>ZARA AI HUB leverages advanced AI models to provide a comprehensive and intuitive creative partner for generating stunning visual artwork.</p>
                  </div>
             </div>
 
-            <div>
-                <h3 className="text-lg font-bold text-primary mb-3">Unleash Your Creativity</h3>
-                <ul className="text-text-secondary text-sm space-y-2 list-disc list-inside">
-                    <li><span className="font-semibold text-text-primary">Bespoke AI Agents:</span> Design and command custom AI assistants tailored for any writing, brainstorming, or problem-solving task.</li>
-                    <li><span className="font-semibold text-text-primary">Stunning Visual Artwork:</span> Generate breathtaking, unique images from simple text descriptions. Control styles, aspect ratios, and more.</li>
-                    <li><span className="font-semibold text-text-primary">Secure & Personal:</span> All your creations and custom agents are saved securely to your personal account.</li>
-                </ul>
-            </div>
+            <div className="border-t border-border-color my-4"></div>
 
-            <div>
-                <h3 className="text-lg font-bold text-primary mb-3">A Note from the Creator</h3>
-                <div className="text-text-secondary text-sm leading-relaxed space-y-3">
+            <div className="text-center">
+                <h3 className="text-2xl font-bold text-primary mb-6">A Note from the Creator</h3>
+                <div className="text-text-secondary text-sm sm:text-base leading-relaxed space-y-4 max-w-2xl mx-auto">
                     <p>
                         Hello! I'm <span className="font-semibold text-accent">Goodluck Zara</span> (also known as Zara Codec), the creator of this platform. As a young Nigerian developer, my journey into artificial intelligence has been driven by pure passion. This platform was built by me, Zara.
                     </p>
@@ -51,7 +44,7 @@ const AboutSection: React.FC = () => {
                         My dream is to empower everyone with access to incredible AI tools. If you're interested in creating a website or app, or wish to explore AI further, I'm available for hire. You can reach me directly on WhatsApp at <strong className="text-text-primary">+2347011156046</strong>. Let's build something amazing together!
                     </p>
                 </div>
-                 <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-border-color">
+                 <div className="flex items-center justify-center gap-6 mt-6 pt-6 border-t border-border-color">
                     {socialLinks.map(link => (
                         <a 
                             key={link.label}
