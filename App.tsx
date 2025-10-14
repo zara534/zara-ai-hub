@@ -12,6 +12,8 @@ import LandingPage from './pages/LandingPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import AdminPasswordPage from './pages/AdminPasswordPage';
 import ProfilePage from './pages/ProfilePage';
+import LandingHeader from './components/layout/LandingHeader';
+import Footer from './components/layout/Footer';
 
 const AuthProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, authLoading } = useAI();
@@ -78,9 +80,9 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-primary font-sans">
-      {user && <Header />}
-      <main className="container mx-auto p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-background text-text-primary font-sans flex flex-col">
+      {user ? <Header /> : <LandingHeader />}
+      <main className="flex-grow">
         <Routes>
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/signup" element={<GuestRoute><SignUpPage /></GuestRoute>} />
@@ -95,6 +97,7 @@ const App: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <Footer />
     </div>
   );
 };

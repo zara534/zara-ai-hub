@@ -22,16 +22,6 @@ const AboutSection: React.FC = () => {
     return (
         <div className="bg-surface/50 p-6 sm:p-8 rounded-2xl border border-border-color space-y-8">
             <div className="text-center">
-                 <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">ZARA AI HUB</h1>
-                 <div className="mt-4 text-text-secondary max-w-2xl mx-auto space-y-2 text-sm sm:text-base">
-                    <p>Your personal creative suite, powered by the custom-tuned ZARA AI engine.</p>
-                    <p>ZARA AI HUB leverages advanced AI models to provide a comprehensive and intuitive creative partner for generating stunning visual artwork.</p>
-                 </div>
-            </div>
-
-            <div className="border-t border-border-color my-4"></div>
-
-            <div className="text-center">
                 <h3 className="text-2xl font-bold text-primary mb-6">A Note from the Creator</h3>
                 <div className="text-text-secondary text-sm sm:text-base leading-relaxed space-y-4 max-w-2xl mx-auto">
                     <p>
@@ -58,6 +48,17 @@ const AboutSection: React.FC = () => {
                         </a>
                     ))}
                 </div>
+            </div>
+
+            <div className="border-t border-border-color my-4"></div>
+            
+            <div className="text-left text-xs text-text-secondary space-y-4 max-w-3xl mx-auto">
+                <h4 className="font-bold text-sm text-text-primary text-center">Legal & Terms of Use</h4>
+                <p><strong>1. Your Agreement:</strong> By using ZARA AI HUB ("the Service"), you agree to these terms. Please use the Service responsibly.</p>
+                <p><strong>2. Content & Ownership:</strong> You own the content and images you create. You agree not to generate illegal, harmful, or infringing content. We reserve the right to suspend accounts for misuse.</p>
+                <p><strong>3. Account Security:</strong> You are responsible for maintaining the security of your account credentials.</p>
+                <p><strong>4. Privacy:</strong> We collect essential data (email, username) for account purposes only. Your personal information is securely handled and will never be sold.</p>
+                <p><strong>5. Disclaimer:</strong> The Service is provided "as is" without any warranties. ZARA AI HUB is not liable for any damages resulting from the use of the AI-generated content or the Service itself.</p>
             </div>
         </div>
     );

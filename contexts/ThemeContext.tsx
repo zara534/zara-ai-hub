@@ -4,21 +4,26 @@ import { useLocalStorage } from '../components/hooks/useLocalStorage';
 type Theme = 'light' | 'dark';
 
 export const themes = {
-  yellow: { name: 'Yellow', primary: '250 204 21', secondary: '234 179 8', accent: '253 224 71' },
+  teal: { name: 'Teal', primary: '20 184 166', secondary: '13 148 136', accent: '45 212 191' },
   blue: { name: 'Blue', primary: '59 130 246', secondary: '37 99 235', accent: '96 165 250' },
   green: { name: 'Green', primary: '34 197 94', secondary: '22 163 74', accent: '74 222 128' },
-  pink: { name: 'Pink', primary: '236 72 153', secondary: '219 39 119', accent: '244 114 182' },
+  rose: { name: 'Rose', primary: '244 63 94', secondary: '225 29 72', accent: '251 113 133' },
   purple: { name: 'Purple', primary: '168 85 247', secondary: '147 51 234', accent: '192 132 252' },
   orange: { name: 'Orange', primary: '249 115 22', secondary: '234 88 12', accent: '251 146 60' },
+  yellow: { name: 'Yellow', primary: '250 204 21', secondary: '234 179 8', accent: '253 224 71' },
   red: { name: 'Red', primary: '239 68 68', secondary: '220 38 38', accent: '248 113 113' },
-  teal: { name: 'Teal', primary: '20 184 166', secondary: '13 148 136', accent: '45 212 191' },
   indigo: { name: 'Indigo', primary: '99 102 241', secondary: '79 70 229', accent: '129 140 248' },
   cyan: { name: 'Cyan', primary: '6 182 212', secondary: '8 145 178', accent: '34 211 238' },
   lime: { name: 'Lime', primary: '132 204 22', secondary: '101 163 13', accent: '163 230 53' },
-  gray: { name: 'Gray', primary: '107 114 128', secondary: '75 85 99', accent: '156 163 175' },
-  rose: { name: 'Rose', primary: '244 63 94', secondary: '225 29 72', accent: '251 113 133' },
+  pink: { name: 'Pink', primary: '236 72 153', secondary: '219 39 119', accent: '244 114 182' },
+  emerald: { name: 'Emerald', primary: '16 185 129', secondary: '5 150 105', accent: '52 211 153' },
+  sky: { name: 'Sky', primary: '14 165 233', secondary: '2 132 199', accent: '56 189 248' },
   amber: { name: 'Amber', primary: '245 158 11', secondary: '217 119 6', accent: '252 199 44' },
   violet: { name: 'Violet', primary: '139 92 246', secondary: '124 58 237', accent: '167 139 250' },
+  fuchsia: { name: 'Fuchsia', primary: '217 70 239', secondary: '192 38 211', accent: '232 121 249' },
+  slate: { name: 'Slate', primary: '100 116 139', secondary: '71 85 105', accent: '148 163 184' },
+  stone: { name: 'Stone', primary: '120 113 108', secondary: '87 83 78', accent: '168 162 158' },
+  gray: { name: 'Gray', primary: '107 114 128', secondary: '75 85 99', accent: '156 163 175' },
 };
 export type ThemeColor = keyof typeof themes;
 
@@ -26,16 +31,16 @@ export const fonts = {
   inter: { name: 'Inter', family: 'Inter' },
   poppins: { name: 'Poppins', family: 'Poppins' },
   robotoSlab: { name: 'Roboto Slab', family: '"Roboto Slab"' },
-  firaCode: { name: 'Fira Code', family: '"Fira Code"' },
+  raleway: { name: 'Raleway', family: 'Raleway' },
   montserrat: { name: 'Montserrat', family: 'Montserrat' },
   nunito: { name: 'Nunito', family: 'Nunito' },
-  sourceCodePro: { name: 'Source Code Pro', family: '"Source Code Pro"' },
   lato: { name: 'Lato', family: 'Lato' },
   openSans: { name: 'Open Sans', family: '"Open Sans"' },
   playfairDisplay: { name: 'Playfair Display', family: '"Playfair Display"' },
   merriweather: { name: 'Merriweather', family: 'Merriweather' },
   ubuntu: { name: 'Ubuntu', family: 'Ubuntu' },
-  raleway: { name: 'Raleway', family: 'Raleway' },
+  sourceCodePro: { name: 'Source Code Pro', family: '"Source Code Pro"' },
+  firaCode: { name: 'Fira Code', family: '"Fira Code"' },
 };
 export type FontFamily = keyof typeof fonts;
 

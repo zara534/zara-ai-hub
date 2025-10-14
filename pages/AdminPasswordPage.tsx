@@ -28,32 +28,34 @@ const AdminPasswordPage: React.FC = () => {
   const labelStyles = "block text-sm font-medium text-text-secondary";
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-      <div className="w-full max-w-md mx-auto">
-        <Card className="p-8">
-          <h2 className="text-3xl font-bold text-center text-primary mb-2">Admin Access</h2>
-          <p className="text-center text-text-secondary mb-6">Enter the password to access the admin panel.</p>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="password" className={labelStyles}>Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                autoComplete="current-password"
-                onChange={(e) => setPassword(e.target.value)}
-                className={`${inputStyles} mt-1`}
-                required
-              />
-            </div>
-            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-            <div>
-              <Button type="submit" className="w-full" isLoading={isLoading}>
-                Continue
-              </Button>
-            </div>
-          </form>
-        </Card>
+    <div className="container mx-auto p-4 h-full">
+      <div className="flex items-center justify-center h-full">
+        <div className="w-full max-w-md mx-auto">
+          <Card className="p-8">
+            <h2 className="text-3xl font-bold text-center text-primary mb-2">Admin Access</h2>
+            <p className="text-center text-text-secondary mb-6">Enter the password to access the admin panel.</p>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="password" className={labelStyles}>Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  autoComplete="current-password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`${inputStyles} mt-1`}
+                  required
+                />
+              </div>
+              {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+              <div>
+                <Button type="submit" className="w-full" isLoading={isLoading}>
+                  Continue
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
       </div>
     </div>
   );

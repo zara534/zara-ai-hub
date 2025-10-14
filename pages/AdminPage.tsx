@@ -22,6 +22,10 @@ const AdminPage: React.FC = () => {
         addAnnouncement,
         updateAnnouncement,
         deleteAnnouncement,
+        globalImageGenerationLimit,
+        setGlobalImageGenerationLimit,
+        isCreditLimitEnabled,
+        setCreditLimitEnabled,
     } = useAI();
     
     const [activeTab, setActiveTab] = useState('personas');
@@ -34,6 +38,9 @@ const AdminPage: React.FC = () => {
     const [isAnnouncementFormVisible, setAnnouncementFormVisible] = useState(false);
     const [currentAnnouncement, setCurrentAnnouncement] = useState<Partial<Announcement> | null>(null);
     const [sortConfig, setSortConfig] = useState<{ key: SortableAnnouncementKeys, direction: SortDirection }>({ key: 'date', direction: 'desc' });
+
+    // Settings state
+    const [newLimit, setNewLimit] = useState(globalImageGenerationLimit);
 
     // General state
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -51,7 +58,10 @@ const AdminPage: React.FC = () => {
                 if (aValue === undefined || bValue === undefined) return 0;
 
                 let comparison = 0;
-                if (sortConfig.key === 'date') {
+                // Fix: Resolved a TypeScript error by adding a type guard to ensure `new Date` only receives a string.
+                // The generic access `a[sortConfig.key]` results in a `string | boolean` type, which is not compatible with `new Date`.
+                // This logic now correctly handles sorting for date strings, other strings, and booleans.
+                if (sortConfig.key === 'date' && typeof aValue === 'string' && typeof bValue === 'string') {
                     comparison = new Date(aValue).getTime() - new Date(bValue).getTime();
                 } else if (typeof aValue === 'string' && typeof bValue === 'string') {
                     comparison = aValue.localeCompare(bValue);
@@ -224,6 +234,12 @@ const AdminPage: React.FC = () => {
         reader.readAsText(file);
     };
 
+    // Settings Handler
+    const handleLimitSave = () => {
+        setGlobalImageGenerationLimit(Number(newLimit));
+        showToast('Generation limit updated!');
+    };
+
     const inputStyles = "block w-full px-3 py-2 bg-background border border-border-color rounded-md focus:outline-none focus:ring-primary text-text-primary";
     const labelStyles = "block text-sm font-medium text-text-secondary mb-1";
     const thStyles = "p-3 cursor-pointer select-none hover:bg-border-color/20";
@@ -321,7 +337,7 @@ const AdminPage: React.FC = () => {
     );
     
     return (
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="container mx-auto p-4 md:p-6 lg:p-8">
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
             <Modal
                 isOpen={isDeleteModalOpen}
@@ -332,101 +348,151 @@ const AdminPage: React.FC = () => {
                 <p>Are you sure you want to delete this {itemToDelete?.type}? This action cannot be undone.</p>
             </Modal>
             
-            <div className="text-center">
-                <h1 className="text-4xl font-extrabold text-primary">Admin Panel</h1>
-                <p className="mt-2 text-lg text-text-secondary">Manage application content and settings.</p>
+            <div className="max-w-7xl mx-auto space-y-8">
+              <div className="text-center">
+                  <h1 className="text-4xl font-extrabold text-primary">Admin Panel</h1>
+                  <p className="mt-2 text-lg text-text-secondary">Manage application content and settings.</p>
+              </div>
+              
+              <div className="border-b border-border-color flex justify-center">
+                  <button onClick={() => setActiveTab('personas')} className={`px-4 py-2 text-lg font-semibold ${activeTab === 'personas' ? 'text-primary border-b-2 border-primary' : 'text-text-secondary'}`}>Personas</button>
+                  <button onClick={() => setActiveTab('announcements')} className={`px-4 py-2 text-lg font-semibold ${activeTab === 'announcements' ? 'text-primary border-b-2 border-primary' : 'text-text-secondary'}`}>Announcements</button>
+                  <button onClick={() => setActiveTab('settings')} className={`px-4 py-2 text-lg font-semibold ${activeTab === 'settings' ? 'text-primary border-b-2 border-primary' : 'text-text-secondary'}`}>Settings</button>
+              </div>
+
+              {activeTab === 'settings' && (
+                  <Card className="p-6">
+                      <h2 className="text-3xl font-bold mb-6">App Settings</h2>
+                      <div className="space-y-6 max-w-md">
+                          <div className="flex items-center justify-between p-4 rounded-lg bg-surface border border-border-color">
+                              <div>
+                                  <h3 className="text-lg font-semibold text-text-primary">Enable Credit Limit</h3>
+                                  <p className="text-sm text-text-secondary">If disabled, all users will have unlimited generations.</p>
+                              </div>
+                              <button
+                                  onClick={() => {
+                                      setCreditLimitEnabled(!isCreditLimitEnabled);
+                                      showToast(`Credit limit ${!isCreditLimitEnabled ? 'enabled' : 'disabled'}.`);
+                                  }}
+                                  className={`${
+                                      isCreditLimitEnabled ? 'bg-primary' : 'bg-gray-400 dark:bg-gray-600'
+                                  } relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-accent`}
+                              >
+                                  <span className="sr-only">Toggle credit limit</span>
+                                  <span className={`${
+                                      isCreditLimitEnabled ? 'translate-x-6' : 'translate-x-1'
+                                  } inline-block w-4 h-4 transform bg-white rounded-full transition-transform`} />
+                              </button>
+                          </div>
+                          
+                          <div className={`space-y-4 pt-6 border-t border-border-color transition-opacity duration-300 ${!isCreditLimitEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                              <h3 className="text-lg font-semibold text-text-primary">Configure Daily Limit</h3>
+                              <div>
+                                  <label htmlFor="generationLimit" className={labelStyles}>Daily Generations per User</label>
+                                  <input 
+                                      type="number" 
+                                      id="generationLimit" 
+                                      value={newLimit} 
+                                      onChange={(e) => setNewLimit(Number(e.target.value) >= 0 ? Number(e.target.value) : 0)} 
+                                      className={inputStyles}
+                                      disabled={!isCreditLimitEnabled}
+                                  />
+                                  <p className="text-sm text-text-secondary mt-1">This number resets daily for each user.</p>
+                              </div>
+                              <div className="text-right">
+                                  <Button onClick={handleLimitSave} disabled={!isCreditLimitEnabled}>Save Limit</Button>
+                              </div>
+                          </div>
+                      </div>
+                  </Card>
+              )}
+              
+              {activeTab === 'personas' && (
+                  <Card className="p-6">
+                      <div className="flex justify-between items-center mb-4">
+                          <h2 className="text-3xl font-bold">Manage Personas</h2>
+                          <div className="flex gap-2">
+                              <Button onClick={handleExportPersonas} className="!bg-surface hover:!bg-border-color/50 !text-text-primary">Export JSON</Button>
+                              <Button as="label" className="!bg-surface hover:!bg-border-color/50 !text-text-primary cursor-pointer">
+                                  Import JSON
+                                  <input type="file" accept=".json" onChange={handleImportPersonas} className="hidden" />
+                              </Button>
+                              <Button onClick={handleNewPersona}>+ Add New</Button>
+                          </div>
+                      </div>
+                      {importError && <p className="text-red-500 mb-4">{importError}</p>}
+                      
+                      {isPersonaFormVisible && renderPersonaForm()}
+
+                      <div className="overflow-x-auto">
+                          <table className="w-full text-left">
+                              <thead className="bg-surface">
+                                  <tr>
+                                      <th className="p-3">Name</th>
+                                      <th className="p-3">Type</th>
+                                      <th className="p-3">Description</th>
+                                      <th className="p-3">Actions</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {personas.filter(p => !p.isDefault).map(p => (
+                                      <tr key={p.id} className="border-b border-border-color">
+                                          <td className="p-3 font-semibold">{p.name} {p.icon}</td>
+                                          <td className="p-3">{p.type}</td>
+                                          <td className="p-3 text-sm text-text-secondary max-w-sm truncate">{p.description}</td>
+                                          <td className="p-3">
+                                              <div className="flex gap-2">
+                                                  <Button onClick={() => handleEditPersona(p)} className="!p-2 text-sm">Edit</Button>
+                                                  <Button onClick={() => handleDeleteClick(p.id, 'persona')} className="!p-2 text-sm !bg-red-600 hover:!bg-red-700">Delete</Button>
+                                              </div>
+                                          </td>
+                                      </tr>
+                                  ))}
+                              </tbody>
+                          </table>
+                      </div>
+                  </Card>
+              )}
+
+              {activeTab === 'announcements' && (
+                  <Card className="p-6">
+                      <div className="flex justify-between items-center mb-4">
+                          <h2 className="text-3xl font-bold">Manage Announcements</h2>
+                          <Button onClick={handleNewAnnouncement}>+ Add New</Button>
+                      </div>
+
+                      {isAnnouncementFormVisible && renderAnnouncementForm()}
+
+                      <div className="overflow-x-auto">
+                          <table className="w-full text-left">
+                              <thead className="bg-surface">
+                                  <tr>
+                                      <th onClick={() => requestSort('title')} className={thStyles}>Title{getSortIndicator('title')}</th>
+                                      <th onClick={() => requestSort('enabled')} className={thStyles}>Status{getSortIndicator('enabled')}</th>
+                                      <th onClick={() => requestSort('date')} className={thStyles}>Date{getSortIndicator('date')}</th>
+                                      <th className="p-3">Actions</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {sortedAnnouncements.map(a => (
+                                      <tr key={a.id} className="border-b border-border-color">
+                                          <td className="p-3 font-semibold">{a.title}</td>
+                                          <td className="p-3">{a.enabled ? <span className="text-green-400">Enabled</span> : <span className="text-gray-500">Disabled</span>}</td>
+                                          <td className="p-3 text-sm">{new Date(a.date).toLocaleDateString()}</td>
+                                          <td className="p-3">
+                                              <div className="flex gap-2">
+                                                  <Button onClick={() => handleEditAnnouncement(a)} className="!p-2 text-sm">Edit</Button>
+                                                  <Button onClick={() => handleDeleteClick(a.id, 'announcement')} className="!p-2 text-sm !bg-red-600 hover:!bg-red-700">Delete</Button>
+                                              </div>
+                                          </td>
+                                      </tr>
+                                  ))}
+                              </tbody>
+                          </table>
+                      </div>
+                  </Card>
+              )}
             </div>
-            
-            <div className="border-b border-border-color flex justify-center">
-                <button onClick={() => setActiveTab('personas')} className={`px-4 py-2 text-lg font-semibold ${activeTab === 'personas' ? 'text-primary border-b-2 border-primary' : 'text-text-secondary'}`}>Personas</button>
-                <button onClick={() => setActiveTab('announcements')} className={`px-4 py-2 text-lg font-semibold ${activeTab === 'announcements' ? 'text-primary border-b-2 border-primary' : 'text-text-secondary'}`}>Announcements</button>
-            </div>
-            
-            {activeTab === 'personas' && (
-                <Card className="p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-3xl font-bold">Manage Personas</h2>
-                        <div className="flex gap-2">
-                             <Button onClick={handleExportPersonas} className="!bg-surface hover:!bg-border-color/50 !text-text-primary">Export JSON</Button>
-                             <Button as="label" className="!bg-surface hover:!bg-border-color/50 !text-text-primary cursor-pointer">
-                                Import JSON
-                                <input type="file" accept=".json" onChange={handleImportPersonas} className="hidden" />
-                             </Button>
-                            <Button onClick={handleNewPersona}>+ Add New</Button>
-                        </div>
-                    </div>
-                    {importError && <p className="text-red-500 mb-4">{importError}</p>}
-                    
-                    {isPersonaFormVisible && renderPersonaForm()}
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-surface">
-                                <tr>
-                                    <th className="p-3">Name</th>
-                                    <th className="p-3">Type</th>
-                                    <th className="p-3">Description</th>
-                                    <th className="p-3">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {personas.filter(p => !p.isDefault).map(p => (
-                                    <tr key={p.id} className="border-b border-border-color">
-                                        <td className="p-3 font-semibold">{p.name} {p.icon}</td>
-                                        <td className="p-3">{p.type}</td>
-                                        <td className="p-3 text-sm text-text-secondary max-w-sm truncate">{p.description}</td>
-                                        <td className="p-3">
-                                            <div className="flex gap-2">
-                                                <Button onClick={() => handleEditPersona(p)} className="!p-2 text-sm">Edit</Button>
-                                                <Button onClick={() => handleDeleteClick(p.id, 'persona')} className="!p-2 text-sm !bg-red-600 hover:!bg-red-700">Delete</Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </Card>
-            )}
-
-            {activeTab === 'announcements' && (
-                <Card className="p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-3xl font-bold">Manage Announcements</h2>
-                        <Button onClick={handleNewAnnouncement}>+ Add New</Button>
-                    </div>
-
-                    {isAnnouncementFormVisible && renderAnnouncementForm()}
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                             <thead className="bg-surface">
-                                <tr>
-                                    <th onClick={() => requestSort('title')} className={thStyles}>Title{getSortIndicator('title')}</th>
-                                    <th onClick={() => requestSort('enabled')} className={thStyles}>Status{getSortIndicator('enabled')}</th>
-                                    <th onClick={() => requestSort('date')} className={thStyles}>Date{getSortIndicator('date')}</th>
-                                    <th className="p-3">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sortedAnnouncements.map(a => (
-                                    <tr key={a.id} className="border-b border-border-color">
-                                        <td className="p-3 font-semibold">{a.title}</td>
-                                        <td className="p-3">{a.enabled ? <span className="text-green-400">Enabled</span> : <span className="text-gray-500">Disabled</span>}</td>
-                                        <td className="p-3 text-sm">{new Date(a.date).toLocaleDateString()}</td>
-                                        <td className="p-3">
-                                             <div className="flex gap-2">
-                                                <Button onClick={() => handleEditAnnouncement(a)} className="!p-2 text-sm">Edit</Button>
-                                                <Button onClick={() => handleDeleteClick(a.id, 'announcement')} className="!p-2 text-sm !bg-red-600 hover:!bg-red-700">Delete</Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </Card>
-            )}
         </div>
     );
 };

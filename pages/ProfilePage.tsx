@@ -73,51 +73,53 @@ const ProfilePage: React.FC = () => {
     return (
         <>
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-            <div className="max-w-3xl mx-auto space-y-8">
-                <div className="text-center">
-                    <h1 className="text-4xl font-extrabold text-primary">My Profile</h1>
-                    <p className="mt-2 text-lg text-text-secondary">Manage your account settings.</p>
+            <div className="container mx-auto p-4 md:p-6 lg:p-8">
+                <div className="max-w-3xl mx-auto space-y-8">
+                    <div className="text-center">
+                        <h1 className="text-4xl font-extrabold text-primary">My Profile</h1>
+                        <p className="mt-2 text-lg text-text-secondary">Manage your account settings.</p>
+                    </div>
+
+                    <Card>
+                        <div className="p-6">
+                            <h2 className="text-2xl font-bold mb-4">Profile Information</h2>
+                            <form onSubmit={handleUsernameUpdate} className="space-y-4">
+                                <div>
+                                    <label className={labelStyles}>Email Address</label>
+                                    <input type="email" value={user?.email || ''} className={`${inputStyles} cursor-not-allowed bg-border-color/20`} disabled />
+                                </div>
+                                <div>
+                                    <label htmlFor="username" className={labelStyles}>Username</label>
+                                    <input id="username" type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} className={inputStyles} required />
+                                    {error?.type === 'username' && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
+                                </div>
+                                <div className="text-right">
+                                    <Button type="submit" isLoading={isUpdatingUsername}>Save Changes</Button>
+                                </div>
+                            </form>
+                        </div>
+                    </Card>
+
+                    <Card>
+                        <div className="p-6">
+                            <h2 className="text-2xl font-bold mb-4">Change Password</h2>
+                            <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                                <div>
+                                    <label htmlFor="newPassword" className={labelStyles}>New Password</label>
+                                    <input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputStyles} required />
+                                </div>
+                                <div>
+                                    <label htmlFor="confirmPassword" className={labelStyles}>Confirm New Password</label>
+                                    <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputStyles} required />
+                                    {error?.type === 'password' && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
+                                </div>
+                                <div className="text-right">
+                                    <Button type="submit" isLoading={isUpdatingPassword}>Update Password</Button>
+                                </div>
+                            </form>
+                        </div>
+                    </Card>
                 </div>
-
-                <Card>
-                    <div className="p-6">
-                        <h2 className="text-2xl font-bold mb-4">Profile Information</h2>
-                        <form onSubmit={handleUsernameUpdate} className="space-y-4">
-                            <div>
-                                <label className={labelStyles}>Email Address</label>
-                                <input type="email" value={user?.email || ''} className={`${inputStyles} cursor-not-allowed bg-border-color/20`} disabled />
-                            </div>
-                            <div>
-                                <label htmlFor="username" className={labelStyles}>Username</label>
-                                <input id="username" type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} className={inputStyles} required />
-                                {error?.type === 'username' && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
-                            </div>
-                            <div className="text-right">
-                                <Button type="submit" isLoading={isUpdatingUsername}>Save Changes</Button>
-                            </div>
-                        </form>
-                    </div>
-                </Card>
-
-                <Card>
-                    <div className="p-6">
-                        <h2 className="text-2xl font-bold mb-4">Change Password</h2>
-                        <form onSubmit={handlePasswordUpdate} className="space-y-4">
-                             <div>
-                                <label htmlFor="newPassword" className={labelStyles}>New Password</label>
-                                <input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputStyles} required />
-                            </div>
-                            <div>
-                                <label htmlFor="confirmPassword" className={labelStyles}>Confirm New Password</label>
-                                <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputStyles} required />
-                                {error?.type === 'password' && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
-                            </div>
-                            <div className="text-right">
-                                <Button type="submit" isLoading={isUpdatingPassword}>Update Password</Button>
-                            </div>
-                        </form>
-                    </div>
-                </Card>
             </div>
         </>
     );
